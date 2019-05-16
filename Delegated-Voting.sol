@@ -191,7 +191,8 @@ contract Ballot {
 
     function count() public view returns(uint total_people, uint people_who_can_vote, uint people_voted) {
         total_people = accounts.length;
-        uint c=0,v=0;
+        uint c=0;
+        uint v=0;
         for(uint i=0;i<accounts.length;i++)
         {
             if(voters[accounts[i]].weight>0)
