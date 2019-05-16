@@ -77,6 +77,8 @@ contract Ballot {
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "You already voted.");
 
+        require(voters[to].weight>0, "Delegate is not trusted by the chairperson");
+
         require(to != msg.sender, "Self-delegation is disallowed.");
 
         // Forward the delegation as long as
