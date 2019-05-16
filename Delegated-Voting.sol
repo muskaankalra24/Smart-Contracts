@@ -131,12 +131,21 @@ contract Ballot {
             returns (uint winningProposal_)
     {
         uint winningVoteCount = 0;
+        int c=0;
+
         for (uint p = 0; p < proposals.length; p++) {
             if (proposals[p].voteCount > winningVoteCount) {
                 winningVoteCount = proposals[p].voteCount;
                 winningProposal_ = p;
             }
         }
+
+        for (uint p = 0; p < proposals.length; p++) 
+            if(proposals[p].voteCount == winningVoteCount)
+                c++;        
+        
+        require( c<2 , "There is a DRAW") ;    
+
     }
 
     // Calls winningProposal() function to get the index
