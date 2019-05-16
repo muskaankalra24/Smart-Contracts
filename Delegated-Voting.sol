@@ -140,6 +140,8 @@ contract Ballot {
             }
         }
 
+        require(winningProposal_ != 0, "No-one has voted");
+
         for (uint p = 0; p < proposals.length; p++) 
             if(proposals[p].voteCount == winningVoteCount)
                 c++;        
