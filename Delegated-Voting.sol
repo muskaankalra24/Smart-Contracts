@@ -10,6 +10,10 @@ contract Ballot {
         bool voted;  // if true, that person already voted
         address delegate; // person delegated to
         uint vote;   // index of the voted proposal
+        uint age ;
+        string name;
+        bool gender;
+        bool inf;
     }
 
     // This is a type for a single proposal.
@@ -56,8 +60,10 @@ contract Ballot {
         }
     }
 
+    uint eligible_age;
     function giveRightToAllEligible(uint Age) public {
         require(msg.sender==chairperson, "Unauthorized access");
+        eligible_age = Age;
         for(uint i=0; i<accounts.length; i++)
         {
             if(voters[accounts[i]].age>=Age && voters[accounts[i]].weight==0)
@@ -89,6 +95,7 @@ contract Ballot {
             "The voter already voted."
         );
         require(voters[voter].weight == 0);
+        require(voters[voter].age >= eligible_age, "Voter is under age");
         voters[voter].weight = 1;
     }
 
