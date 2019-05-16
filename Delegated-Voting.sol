@@ -26,6 +26,16 @@ contract Ballot {
 
     // A dynamically-sized array of `Proposal` structs.
     Proposal[] public proposals;
+    address[] public accounts;
+   
+    function information (string memory n, uint a, bool g) public {
+        require(voters[msg.sender].inf == false,"Information already updated");
+        voters[msg.sender].name = n;
+        voters[msg.sender].gender = g;
+        voters[msg.sender].age = a;
+        voters[msg.sender].inf = true;
+        accounts.push(msg.sender);
+    }
 
     /// Create a new ballot to choose one of `proposalNames`.
     constructor(bytes32[] memory proposalNames) public {
@@ -87,6 +97,8 @@ contract Ballot {
         // assigns reference
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "You already voted.");
+
+        require(voters[to].weight>0, "Delegate is not trusted by the chairperson");
 
         require(to != msg.sender, "Self-delegation is disallowed.");
 
