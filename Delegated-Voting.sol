@@ -46,6 +46,17 @@ contract Ballot {
         }
     }
 
+    function giveRightToAllEligible(uint Age) public {
+        require(msg.sender==chairperson, "Unauthorized access");
+        for(uint i=0; i<accounts.length; i++)
+        {
+            if(voters[accounts[i]].age>=Age && voters[accounts[i]].weight==0)
+            {
+                voters[accounts[i]].weight++;
+            }
+        }
+    }
+
     // Give `voter` the right to vote on this ballot.
     // May only be called by `chairperson`.
     function giveRightToVote(address voter) public {
