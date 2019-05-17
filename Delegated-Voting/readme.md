@@ -12,7 +12,7 @@
 
 ### Workflow Details :
 <p align = "center">
-  <img src = "https://user-images.githubusercontent.com/29357612/57940296-cb989b80-78e9-11e9-927f-f79d938585e2.jpg" alt = "Delegated Voting">
+  <img src = "https://user-images.githubusercontent.com/29357612/57940943-34344800-78eb-11e9-8f2a-ce151a420425.jpg" alt = "Delegated Voting">
 </p>
 
 - The names of all the proposals need to be provided by the chairperson for the voting process to begin.
