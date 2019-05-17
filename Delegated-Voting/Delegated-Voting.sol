@@ -57,6 +57,11 @@ contract Ballot {
             }));
         }
     }
+    // chairperson can recruit new chairperson
+    function update_chairperson ( address newchairperson) public {
+        require(msg.sender == chairperson,"only chairperson can recruit new chairperson");
+        chairperson = newchairperson;
+    }
 
     // Everyone need to register themselves to be considered for voting.
     // Anyone can enter their information only once and cannot update it any further.
