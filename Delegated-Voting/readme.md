@@ -11,6 +11,10 @@
 
 
 ### Workflow Details :
+<p align = "center">
+  <img src = "https://user-images.githubusercontent.com/29357612/57940296-cb989b80-78e9-11e9-927f-f79d938585e2.jpg" alt = "Delegated Voting">
+</p>
+
 - The names of all the proposals need to be provided by the chairperson for the voting process to begin.
 - Everyone need to register themselves by submitting their basic information (like name, age, and gender) in order to be considered for voting by the chairperson. People cannot change their information once they have updated. 
 - Anyone who has not registered will not be able to vote, even if he/she is eligible. The eligible age is 18 (by default) and can be updated only by the chairperson. Once a person has registered, it is the choice of the chairperson, whether to give the voting rights to that person or not. The chairperson can only approve the voters who are eligible as well as registered. Chairperson can either choose to approve all the ready voters at once, or approve them one by one. 
