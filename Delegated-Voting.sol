@@ -189,7 +189,7 @@ contract Ballot {
         winnerName_ = proposals[winningProposal()].name;
     }
 
-    function count() public view returns(uint total_people, uint people_who_can_vote, uint people_voted) {
+    function count() public view returns(uint total_people, uint people_can_vote, uint people_voted) {
         total_people = accounts.length;
         uint c=0;
         uint v=0;
@@ -202,5 +202,7 @@ contract Ballot {
                     v++;
             }
         }
+        people_can_vote = c;
+        people_voted = v;
     }
 }
