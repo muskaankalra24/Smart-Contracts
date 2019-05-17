@@ -1,10 +1,10 @@
 pragma solidity >=0.4.22 <0.6.0;
 
-/// @title Voting with delegation.
+// @title Voting with delegation.
 contract Ballot {
     // This declares a new complex type which will
     // be used for variables later.
-    // It will represent a single voter.
+    // It represents a single voter.
     struct Voter {
         uint weight; // weight is accumulated by delegation
         bool voted;  // if true, that person already voted
@@ -12,17 +12,20 @@ contract Ballot {
         uint vote;   // index of the voted proposal
         uint age ;   // age of person
         string name; // name of person
-        bool gender; // gender of person
+        bool gender; // gender of person(false:Male, true:Female)
         bool inf;  // if true, that person has already entered his/her information 
     }
 
     // This is a type for a single proposal.
     struct Proposal {
-        bytes32 name;   // short name (up to 32 bytes)
+        bytes32 name;   
         uint voteCount; // number of accumulated votes
     }
 
     address public chairperson;
+
+    // Array for storing addresses of all persons
+    address[] accounts;  
 
     // This declares a state variable that
     // stores a `Voter` struct for each possible address.
@@ -31,22 +34,20 @@ contract Ballot {
     // A dynamically-sized array of `Proposal` structs.
     Proposal[] public proposals;
 
-    // Array for storing addresses of all persons
-    address[] public accounts;  
-
-    // All persons need to enter their information for them to be considered for voting.
-    // Anyone can enter their information only once and cannot update it any further.
-    function information (string memory n, uint a, bool g) public {
-        require(voters[msg.sender].inf == false,"Information already updated");
-        voters[msg.sender].name = n;
-        voters[msg.sender].gender = g;
-        voters[msg.sender].age = a;
-        voters[msg.sender].inf = true;
-        accounts.push(msg.sender);
+    uint public eligible_age = 18 ;
+    // Eligible age for voting.
+    // People who are eligible, can only vote if the chairperson gives them the right.
+    
+    // Update the eligible age.
+    // Only chairperson can call this function.
+    function update_eligible_age(uint Age) public {
+        require(msg.sender == chairperson, "Unauthorized access");
+        eligible_age = Age;
     }
 
-    /// Create a new ballot to choose one of `proposalNames`.
+    // Create a new ballot to choose one of `proposalNames`.
     constructor(bytes32[] memory proposalNames) public {
+
         chairperson = msg.sender;
         voters[chairperson].weight = 1;
 
@@ -64,23 +65,30 @@ contract Ballot {
         }
     }
 
-    uint eligible_age;  
-    // Eligible age for voting.
-    // People who are eligible, can only vote if the chairperson gives them the right.
+    // All persons need to enter their information for them to be considered for voting.
+    // Anyone can enter their information only once and cannot update it any further.
+    function information (string memory n, uint a, bool g) public {
+        require(voters[msg.sender].inf == false,"Information already updated");
+        voters[msg.sender].name = n;
+        voters[msg.sender].gender = g;
+        voters[msg.sender].age = a;
+        voters[msg.sender].inf = true;
+        accounts.push(msg.sender);
+    }
 
     //Give all eligible voters the right to vote.
     //May only be called by `chairperson`.
-    function giveRightToAllEligible(uint Age) public {
+    function giveRightToAllEligible() public {
         // If the first argument of `require` evaluates
         // to `false`, execution terminates and all
         // changes to the state and to Ether balances
         // are reverted.
         require(msg.sender==chairperson, "Unauthorized access");
 
-        eligible_age = Age;
         for(uint i=0; i<accounts.length; i++)
         {
-            if(voters[accounts[i]].age>=Age && voters[accounts[i]].weight==0)
+            if(voters[accounts[i]].age >= eligible_age && voters[accounts[i]].weight == 0 && 
+               voters[accounts[i]].inf == true )
             {
                 voters[accounts[i]].weight = 1;
             }
@@ -95,7 +103,9 @@ contract Ballot {
         require( msg.sender == chairperson,"Only chairperson can give right to vote");
         require(!voters[voter].voted,"The voter already voted");
         require(voters[voter].weight == 0);
+        require(voters[voter].inf == true, "Voter has not entered his/her information");
         require(voters[voter].age >= eligible_age, "Voter is under age");
+        
         voters[voter].weight = 1;
     }
 
@@ -106,6 +116,8 @@ contract Ballot {
         
         require(!sender.voted, "You already voted.");
         require(voters[to].weight>0, "Delegate is not trusted by the chairperson");
+        // Delegate must have the right to vote.
+
         require(to != msg.sender, "Self-delegation is disallowed.");
 
         // Forward the delegation as long as
