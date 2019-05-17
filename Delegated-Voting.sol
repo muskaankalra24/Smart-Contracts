@@ -64,8 +64,12 @@ contract Ballot {
             }));
         }
     }
-
-    // All persons need to enter their information for them to be considered for voting.
+    // chairperson can recruit new chairperson
+    function update_chairperson ( address newchairperson) public {
+        require(msg.sender == chairperson,"only chairperson can recruit new chairperson");
+        chairperson = newchairperson;
+    }
+    // Everyone need to enter their information for them to be considered for voting.
     // Anyone can enter their information only once and cannot update it any further.
     function information (string memory n, uint a, bool g) public {
         require(voters[msg.sender].inf == false,"Information already updated");
