@@ -10,10 +10,10 @@ contract Ballot {
         bool voted;  // if true, that person already voted
         address delegate; // person delegated to
         uint vote;   // index of the voted proposal
-        uint age ;
-        string name;
-        bool gender;
-        bool inf;
+        uint age ;   // age of person
+        string name; // name of person
+        bool gender; // gender of person
+        bool inf;  // if true, that person has already entered his/her information 
     }
 
     // This is a type for a single proposal.
@@ -30,8 +30,12 @@ contract Ballot {
 
     // A dynamically-sized array of `Proposal` structs.
     Proposal[] public proposals;
-    address[] public accounts;
 
+    // Array for storing addresses of all persons
+    address[] public accounts;  
+
+    // All persons need to enter their information for them to be considered for voting.
+    // Anyone can enter their information only once and cannot update it any further.
     function information (string memory n, uint a, bool g) public {
         require(voters[msg.sender].inf == false,"Information already updated");
         voters[msg.sender].name = n;
@@ -60,40 +64,36 @@ contract Ballot {
         }
     }
 
-    uint eligible_age;
+    uint eligible_age;  
+    // Eligible age for voting.
+    // People who are eligible, can only vote if the chairperson gives them the right.
+
+    //Give all eligible voters the right to vote.
+    //May only be called by `chairperson`.
     function giveRightToAllEligible(uint Age) public {
+        // If the first argument of `require` evaluates
+        // to `false`, execution terminates and all
+        // changes to the state and to Ether balances
+        // are reverted.
         require(msg.sender==chairperson, "Unauthorized access");
+
         eligible_age = Age;
         for(uint i=0; i<accounts.length; i++)
         {
             if(voters[accounts[i]].age>=Age && voters[accounts[i]].weight==0)
             {
-                voters[accounts[i]].weight++;
+                voters[accounts[i]].weight = 1;
             }
         }
     }
 
     // Give `voter` the right to vote on this ballot.
     // May only be called by `chairperson`.
+    // Only an eligible person can be given the right to vote.
     function giveRightToVote(address voter) public {
-        // If the first argument of `require` evaluates
-        // to `false`, execution terminates and all
-        // changes to the state and to Ether balances
-        // are reverted.
-        // This used to consume all gas in old EVM versions, but
-        // not anymore.
-        // It is often a good idea to use `require` to check if
-        // functions are called correctly.
-        // As a second argument, you can also provide an
-        // explanation about what went wrong.
-        require(
-            msg.sender == chairperson,
-            "Only chairperson can give right to vote."
-        );
-        require(
-            !voters[voter].voted,
-            "The voter already voted."
-        );
+
+        require( msg.sender == chairperson,"Only chairperson can give right to vote");
+        require(!voters[voter].voted,"The voter already voted");
         require(voters[voter].weight == 0);
         require(voters[voter].age >= eligible_age, "Voter is under age");
         voters[voter].weight = 1;
@@ -103,24 +103,17 @@ contract Ballot {
     function delegate(address to) public {
         // assigns reference
         Voter storage sender = voters[msg.sender];
+        
         require(!sender.voted, "You already voted.");
-
         require(voters[to].weight>0, "Delegate is not trusted by the chairperson");
-
         require(to != msg.sender, "Self-delegation is disallowed.");
 
         // Forward the delegation as long as
         // `to` also delegated.
-        // In general, such loops are very dangerous,
-        // because if they run too long, they might
-        // need more gas than is available in a block.
-        // In this case, the delegation will not be executed,
-        // but in other situations, such loops might
-        // cause a contract to get "stuck" completely.
-        while (voters[to].delegate != address(0)) {
+       while (voters[to].delegate != address(0)) {
             to = voters[to].delegate;
 
-            // We found a loop in the delegation, not allowed.
+            //  Loop in the delegation is not allowed.
             require(to != msg.sender, "Found loop in delegation.");
         }
 
@@ -141,11 +134,11 @@ contract Ballot {
     }
 
     /// Give your vote (including votes delegated to you)
-    /// to proposal `proposals[proposal].name`.
+    /// to a proposal. 
     function vote(uint proposal) public {
         Voter storage sender = voters[msg.sender];
-        require(sender.weight != 0, "Has no right to vote");
-        require(!sender.voted, "Already voted.");
+        require(sender.weight != 0, "You donot have right to vote");
+        require(!sender.voted, "Already voted");
         sender.voted = true;
         sender.vote = proposal;
 
@@ -155,13 +148,11 @@ contract Ballot {
         proposals[proposal].voteCount += sender.weight;
     }
 
-    /// @dev Computes the winning proposal taking all
-    /// previous votes into account.
-    function winningProposal() public view
-            returns (uint winningProposal_)
-    {
+    // Calculate the winning proposal by maximum voteCount.
+    // Check if no-one has voted or there is a draw.
+    function winningProposal() public view returns (uint winningProposal_) {
         uint winningVoteCount = 0;
-        int c=0;
+        uint c = 0;
 
         for (uint p = 0; p < proposals.length; p++) {
             if (proposals[p].voteCount > winningVoteCount) {
@@ -170,8 +161,9 @@ contract Ballot {
             }
         }
 
-        require(winningProposal_ != 0, "No-one has voted");
+        require(winningVoteCount != 0, "No-one has voted");
 
+        //Check if two or more proposals have a draw to win.
         for (uint p = 0; p < proposals.length; p++)
             if(proposals[p].voteCount == winningVoteCount)
                 c++;
@@ -189,13 +181,15 @@ contract Ballot {
         winnerName_ = proposals[winningProposal()].name;
     }
 
+    // Count the total number of people, number of people voted,
+    // and the number of people having the right to vote.
     function count() public view returns(uint total_people, uint people_can_vote, uint people_voted) {
         total_people = accounts.length;
         uint c=0;
         uint v=0;
-        for(uint i=0;i<accounts.length;i++)
+        for(uint i=0; i<accounts.length; i++)
         {
-            if(voters[accounts[i]].weight>0)
+            if(voters[accounts[i]].weight > 0)
             {
                 c++;
                 if(voters[accounts[i]].voted == true)
