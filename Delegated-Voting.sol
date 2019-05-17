@@ -13,10 +13,9 @@ contract Ballot {
         uint age ;   // age of person
         string name; // name of person
         bool gender; // gender of person(false:Male, true:Female)
-        bool inf;  // if true, that person has already entered his/her information 
+        bool inf;  // if true, that person has already registered
     }
 
-    // This is a type for a single proposal.
     struct Proposal {
         bytes32 name;   
         uint voteCount; // number of accumulated votes
@@ -36,14 +35,8 @@ contract Ballot {
 
     uint public eligible_age = 18 ;
     // Eligible age for voting.
-    // People who are eligible, can only vote if the chairperson gives them the right.
+    // People who are eligible, can only vote if the chairperson approves them to vote.
     
-    // Update the eligible age.
-    // Only chairperson can call this function.
-    function update_eligible_age(uint Age) public {
-        require(msg.sender == chairperson, "Unauthorized access");
-        eligible_age = Age;
-    }
 
     // Create a new ballot to choose one of `proposalNames`.
     constructor(bytes32[] memory proposalNames) public {
@@ -65,7 +58,7 @@ contract Ballot {
         }
     }
 
-    // All persons need to enter their information for them to be considered for voting.
+    // Everyone need to register themselves to be considered for voting.
     // Anyone can enter their information only once and cannot update it any further.
     function information (string memory n, uint a, bool g) public {
         require(voters[msg.sender].inf == false,"Information already updated");
@@ -75,14 +68,18 @@ contract Ballot {
         voters[msg.sender].inf = true;
         accounts.push(msg.sender);
     }
+ 
+    // Update the eligible age.
+    // Only chairperson can call this function.
+    function update_eligible_age(uint Age) public {
+        require(msg.sender == chairperson, "Unauthorized access");
+        eligible_age = Age;
+    }
 
-    //Give all eligible voters the right to vote.
-    //May only be called by `chairperson`.
+    //Give all ready(eligible + registered) voters the right to vote.
+    //Can only be called by chairperson.
     function giveRightToAllEligible() public {
-        // If the first argument of `require` evaluates
-        // to `false`, execution terminates and all
-        // changes to the state and to Ether balances
-        // are reverted.
+
         require(msg.sender==chairperson, "Unauthorized access");
 
         for(uint i=0; i<accounts.length; i++)
@@ -95,28 +92,30 @@ contract Ballot {
         }
     }
 
-    // Give `voter` the right to vote on this ballot.
-    // May only be called by `chairperson`.
-    // Only an eligible person can be given the right to vote.
+    // Approve a voter and give him/her the right to vote on this ballot.
+    // Can only be called by the chairperson.
+    // Only a ready(eligible + registered) voter can be given the right to vote.
     function giveRightToVote(address voter) public {
 
         require( msg.sender == chairperson,"Only chairperson can give right to vote");
         require(!voters[voter].voted,"The voter already voted");
         require(voters[voter].weight == 0);
-        require(voters[voter].inf == true, "Voter has not entered his/her information");
-        require(voters[voter].age >= eligible_age, "Voter is under age");
+        require(voters[voter].inf == true, "Voter is not registered");
+        require(voters[voter].age >= eligible_age, "Voter is under age: Not eligible");
         
         voters[voter].weight = 1;
     }
 
-    /// Delegate your vote to the voter `to`.
+    // Only an approved person can delegate their vote.
+    // Vote must be delegated to an approved person.
     function delegate(address to) public {
         // assigns reference
         Voter storage sender = voters[msg.sender];
         
+        require(sender.weight != 0, "You donot have right to vote : Not an approved voter");
         require(!sender.voted, "You already voted.");
-        require(voters[to].weight>0, "Delegate is not trusted by the chairperson");
-        // Delegate must have the right to vote.
+        require(voters[to].weight>0, "Delegate is not an approved voter");
+        // Delegate must be approved.
 
         require(to != msg.sender, "Self-delegation is disallowed.");
 
@@ -145,11 +144,11 @@ contract Ballot {
         }
     }
 
-    /// Give your vote (including votes delegated to you)
-    /// to a proposal. 
+    // Give your vote (including votes delegated to you) to a proposal. 
+    // Only an approved person can vote.
     function vote(uint proposal) public {
         Voter storage sender = voters[msg.sender];
-        require(sender.weight != 0, "You donot have right to vote");
+        require(sender.weight != 0, "You donot have right to vote : Not an approved voter");
         require(!sender.voted, "Already voted");
         sender.voted = true;
         sender.vote = proposal;
@@ -194,21 +193,21 @@ contract Ballot {
     }
 
     // Count the total number of people, number of people voted,
-    // and the number of people having the right to vote.
-    function count() public view returns(uint total_people, uint people_can_vote, uint people_voted) {
+    // and the number of approved voters.
+    function count() public view returns(uint total_people, uint approved_voters, uint people_voted) {
         total_people = accounts.length;
-        uint c=0;
+        uint a=0;
         uint v=0;
         for(uint i=0; i<accounts.length; i++)
         {
             if(voters[accounts[i]].weight > 0)
             {
-                c++;
+                a++;
                 if(voters[accounts[i]].voted == true)
                     v++;
             }
         }
-        people_can_vote = c;
+        approved_voters = a;
         people_voted = v;
     }
 }
