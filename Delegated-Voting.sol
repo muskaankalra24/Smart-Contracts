@@ -31,7 +31,7 @@ contract Ballot {
     // A dynamically-sized array of `Proposal` structs.
     Proposal[] public proposals;
     address[] public accounts;
-   
+
     function information (string memory n, uint a, bool g) public {
         require(voters[msg.sender].inf == false,"Information already updated");
         voters[msg.sender].name = n;
@@ -172,11 +172,11 @@ contract Ballot {
 
         require(winningProposal_ != 0, "No-one has voted");
 
-        for (uint p = 0; p < proposals.length; p++) 
+        for (uint p = 0; p < proposals.length; p++)
             if(proposals[p].voteCount == winningVoteCount)
-                c++;        
-        
-        require( c<2 , "There is a DRAW") ;    
+                c++;
+
+        require( c<2 , "There is a DRAW") ;
 
     }
 
@@ -187,5 +187,22 @@ contract Ballot {
             returns (bytes32 winnerName_)
     {
         winnerName_ = proposals[winningProposal()].name;
+    }
+
+    function count() public view returns(uint total_people, uint people_can_vote, uint people_voted) {
+        total_people = accounts.length;
+        uint c=0;
+        uint v=0;
+        for(uint i=0;i<accounts.length;i++)
+        {
+            if(voters[accounts[i]].weight>0)
+            {
+                c++;
+                if(voters[accounts[i]].voted == true)
+                    v++;
+            }
+        }
+        people_can_vote = c;
+        people_voted = v;
     }
 }
