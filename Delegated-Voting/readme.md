@@ -1,19 +1,13 @@
 ﻿Application Roles :
 
-Name
-Description
-Chairperson
-The supervisor of the voting process (Owner of the contract)
-Registered Voter
-A person who has submitted his/her basic information
-Eligible Voter
-A person whose age is above the eligible age
-Ready Voter
-A person who is eligible as well as registered
-Approved Voter
-An eligible person, who is approved to vote by the chairperson
-Delegate
-An approved voter, to which other people give their voting rights/power, to vote on their behalf
+| Name | Description |
+| ----------- | ----------- |
+| Chairperson | The supervisor of the voting process (Owner of the contract) |
+| Registered Voter | A person who has submitted his/her basic information |
+| Eligible Voter | A person whose age is above the eligible age |
+| Ready Voter | A person who is eligible as well as registered |
+| Approved Voter | An eligible person, who is approved to vote by the chairperson |
+| Delegate | An approved voter, to which other people give their voting rights/power, to vote on their behalf |
 
 
 
