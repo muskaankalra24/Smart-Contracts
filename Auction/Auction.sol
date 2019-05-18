@@ -98,6 +98,10 @@ contract SimpleAuction {
         }
         return true;
     }
+    // Show pending returns
+    function pending_return() public view returns(uint){
+        uint value = pendingReturns[msg.sender];
+        return value;
 
     /// End the auction and send the highest bid
     /// to the beneficiary.
