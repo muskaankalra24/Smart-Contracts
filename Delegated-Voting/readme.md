@@ -10,7 +10,7 @@
 | Delegate | An approved voter, to which other people give their voting rights/power, to vote on their behalf |
 
 
-### Workflow Details :
+### Workflow Details:
 <p align = "center">
   <img src = "https://user-images.githubusercontent.com/29357612/57941327-42369880-78ec-11e9-9a20-52b7a46f8c42.png" alt = "Delegated Voting">
 </p>
@@ -22,3 +22,5 @@
 - Chairperson also has rights to pass on their powers to some other person. 
 - The winning proposal is chosen on the basis of maximum votes. No winning proposal can be decided in case of a draw. 
 - The total number of people, the number of people who were approved to vote and the number of people who actually voted can also be calculated.
+
+**This contract is an extended version of the Voting contract given in official Solidity documentation.**
