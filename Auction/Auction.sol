@@ -33,10 +33,9 @@ contract SimpleAuction {
     /// beneficiary address `_beneficiary`.
    constructor(
         uint _biddingTime,
-        address payable _beneficiary,
         uint _basebidprice
     ) public {
-        beneficiary = _beneficiary;
+        beneficiary = msg.sender;
         auctionEndTime = now + _biddingTime;
         basebidprice= _basebidprice;
     }
