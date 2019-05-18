@@ -51,9 +51,10 @@ contract SimpleAuction {
 
         // Revert the call if the bidding
         // period is over.
+        require(!ended, "auction has already been ended.");
         require(
             now <= auctionEndTime,
-            "Auction already ended."
+            "Auction has already timed-out."
         );
 
         // If the bid is not higher, send the
@@ -110,8 +111,8 @@ contract SimpleAuction {
         // external contracts.
 
         // 1. Conditions
-        require(now >= auctionEndTime, "Auction not yet ended.");
-        require(!ended, "auctionEnd has already been called.");
+        require(msg.sender == beneficiary, "Unauthorized access");
+        require(!ended, "auction has already been ended.");
 
         // 2. Effects
         ended = true;
