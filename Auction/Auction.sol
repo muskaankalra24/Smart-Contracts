@@ -10,6 +10,7 @@ contract SimpleAuction {
     // Current state of the auction.
     address public highestBidder;
     uint public highestBid;
+     uint public basebidprice;
 
     // Allowed withdrawals of previous bids
     mapping(address => uint) pendingReturns;
@@ -30,12 +31,14 @@ contract SimpleAuction {
     /// Create a simple auction with `_biddingTime`
     /// seconds bidding time on behalf of the
     /// beneficiary address `_beneficiary`.
-    constructor(
+   constructor(
         uint _biddingTime,
-        address payable _beneficiary
+        address payable _beneficiary,
+        uint _basebidprice
     ) public {
         beneficiary = _beneficiary;
         auctionEndTime = now + _biddingTime;
+        basebidprice= _basebidprice;
     }
 
     /// Bid on the auction with the value sent
@@ -55,6 +58,9 @@ contract SimpleAuction {
             now <= auctionEndTime,
             "Auction already ended."
         );
+        
+        // bid should be higher than basebidprice
+        require(msg.value > basebidprice,"Cannot bid");
 
         // If the bid is not higher, send the
         // money back.
