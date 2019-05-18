@@ -51,6 +51,7 @@ contract SimpleAuction {
 
         // Revert the call if the bidding
         // period is over.
+        require(msg.sender != beneficiary,"Beneficiary caanot bid");
         require(!ended, "auction has already been ended.");
         require(
             now <= auctionEndTime,
@@ -92,6 +93,10 @@ contract SimpleAuction {
                pendingReturns[msg.sender] = amount;
             require(x==false,"Withdraw failed");   
             
+    }
+
+    function Current_time() returns(uint) {
+        return now;
     }
 
     /// End the auction and send the highest bid
